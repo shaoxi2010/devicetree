@@ -32,9 +32,10 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use alloc::collections::btree_map::{self, BTreeMap};
 use core::mem::size_of;
-
-extern crate hashbrown;
-use hashbrown::hash_map::{HashMap, self};
+mod ulist;
+use ulist::UList;
+// extern crate hashbrown;
+//use hashbrown::hash_map::{HashMap, self};
 
 extern crate byterider;
 use byterider::{Bytes, Ordering};
@@ -586,7 +587,7 @@ enum DeviceTreeReference
 pub struct DeviceTree
 {
     /* store nodes in a tree, each node has a hash table of properties and values */
-    nodes: BTreeMap<String, HashMap<String, DeviceTreeProperty>>,
+    nodes: BTreeMap<String, UList<String, DeviceTreeProperty>>,
 
     /* specify the boot CPU ID (or it defaults to 0) */
     boot_cpu_id: u32
@@ -624,7 +625,7 @@ impl DeviceTree
         }
         else
         {
-            let mut properties = HashMap::<String, DeviceTreeProperty>::new();
+            let mut properties = UList::<String, DeviceTreeProperty>::new();
             properties.insert(label.clone(), value);
             self.nodes.insert(node_path.clone(), properties);
         }
@@ -996,7 +997,7 @@ impl DeviceTree
    and DeviceTreeProperty contains the property value */
 pub struct DeviceTreePropertyIter<'a>
 {
-    iter: hash_map::Iter<'a, alloc::string::String, DeviceTreeProperty>
+    iter: ulist::Iter<'a, alloc::string::String, DeviceTreeProperty>
 }
 
 impl Iterator for DeviceTreePropertyIter<'_>
@@ -1021,7 +1022,7 @@ pub struct DeviceTreeIter<'a>
 {
     depth: DeviceTreeIterDepth,
     to_match: String,
-    iter: btree_map::Iter<'a, String, hash_map::HashMap<String, DeviceTreeProperty>>
+    iter: btree_map::Iter<'a, String, UList<String, DeviceTreeProperty>>
 }
 
 impl Iterator for DeviceTreeIter<'_>
